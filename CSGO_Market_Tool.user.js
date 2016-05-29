@@ -7,6 +7,7 @@
 // @match        http://steamcommunity.com/market/listings/730/*
 // @icon         http://steamcommunity.com/favicon.ico
 // @grant        GM_xmlhttpRequest
+// @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Market_Tool.user.js
 // ==/UserScript==
 
 (function() {
@@ -48,7 +49,7 @@
         floatButton.setAttribute("style", "margin-left:200px;margin-top:25px;");
         floatButton.setAttribute("class", "btn_green_white_innerfade btn_small");
         floatButton.setAttribute("target", "_blank");
-        floatButton.innerHTML = "<span>ƒ•À≤È—Ø÷–°≠</span>";
+        floatButton.innerHTML = "<span>Á£®ÊçüÊü•ËØ¢‰∏≠‚Ä¶</span>";
         itemList[i].children[0].appendChild(floatButton);
     }
 })();
