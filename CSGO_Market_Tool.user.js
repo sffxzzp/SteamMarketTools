@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.01
+// @version      0.02
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
 // @icon         http://steamcommunity.com/favicon.ico
 // @grant        GM_xmlhttpRequest
+// @connect      metjm.net
 // @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Market_Tool.user.js
 // ==/UserScript==
 
@@ -23,12 +24,10 @@
             url: "http://metjm.net/shared/screenshots-v4.php?cmd=request_inspect_link&user_identifier=CSGO_MFP_"+guid+"&custom_rotation_id=-1&custom_image_id=true&mode=0&inspect_link=" + itemLink,
             onload: function(response) {
                 var result = JSON.parse(response.responseText);
-                console.log(result);
                 if (result["status"]==1) {
                     setTimeout(function(){getFloatValue(i, guid, itemLink);}, 10000);
                 }
                 else if (result["status"]==2) {
-                    console.log(result["item_information"]["floatvalue"]);
                     document.getElementsByClassName('market_recent_listing_row')[i].children[0].children[2].children[0].innerHTML = result["item_information"]["floatvalue"];
                 }
             }
