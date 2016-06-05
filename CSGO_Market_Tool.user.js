@@ -25,7 +25,6 @@
                 url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_new_link&user_uuid="+guid+"&user_client=1&custom_rotation_id=0&use_logo=1&mode=0&inspect_link=" + itemLink,
                 onload: function(response) {
                     var result = JSON.parse(response.responseText);
-                    console.log(result);
                     if (result.success===true) {
                         setTimeout(function(){getFloatValue(i, guid, itemLink, result.result.screen_id);}, 10000);
                     }
@@ -40,7 +39,6 @@
                 url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_screenshot_status&id="+itemId,
                 onload: function(response) {
                     var result = JSON.parse(response.responseText);
-                    console.log(result);
                     if (result.success===true) {
                         if (result.result.status==1) {
                             document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = "队列中：第"+result.result.place_in_queue+"位";
@@ -114,7 +112,6 @@
             itemSticker.innerHTML = itemStickers[i];
             itemList[i].insertBefore(itemSticker, nameList);
             var floatButton = document.createElement("span");
-            //getFloatValue(i, guid(), encodeURIComponent(itemLinks[i]), "first");
             floatButton.setAttribute("style", "width:15%");
             floatButton.setAttribute("class", "market_listing_right_cell market_listing_action_buttons market_listing_wear");
             floatButton.onclick = function() {
