@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.30
+// @version      0.40
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -77,6 +77,17 @@
         customstyle.innerHTML = '.csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}';
         document.head.appendChild(customstyle);
     }
+    function reloadScript(oriId) {
+        var newId = document.getElementsByClassName("market_recent_listing_row")[0].id;
+        console.log('oriId='+oriId);
+        console.log('newId='+newId);
+        if (newId == oriId) {
+            setTimeout(function(){reloadScript(oriId);}, 200);
+        }
+        else {
+            handlePage();
+        }
+    }
     function handlePage() {
         addBanner();
         addStyle();
@@ -125,13 +136,13 @@
         var pagelinks = document.getElementsByClassName('market_paging_pagelink');
         for (var pagelink in pagelinks) {
             pagelinks[pagelink].onclick = function() {
-                setTimeout(function(){handlePage();}, 1000);
+                setTimeout(function(){reloadScript(document.getElementsByClassName("market_recent_listing_row")[0].id);}, 10);
             };
         }
         var pageButtons = document.getElementsByClassName('pagebtn');
         for (var pageButton in pageButtons) {
             pageButtons[pageButton].onclick = function() {
-                setTimeout(function(){handlePage();}, 1000);
+                setTimeout(function(){reloadScript(document.getElementsByClassName("market_recent_listing_row")[0].id);}, 10);
             };
         }
     }
