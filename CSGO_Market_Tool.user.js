@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.22
+// @version      0.30
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -25,6 +25,7 @@
                 url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_new_link&user_uuid="+guid+"&user_client=1&custom_rotation_id=0&use_logo=1&mode=0&inspect_link=" + itemLink,
                 onload: function(response) {
                     var result = JSON.parse(response.responseText);
+                    console.log(result);
                     if (result.success===true) {
                         setTimeout(function(){getFloatValue(i, guid, itemLink, result.result.screen_id);}, 10000);
                     }
@@ -39,12 +40,17 @@
                 url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_screenshot_status&id="+itemId,
                 onload: function(response) {
                     var result = JSON.parse(response.responseText);
+                    console.log(result);
                     if (result.success===true) {
                         if (result.result.status==1) {
+                            document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = "队列中：第"+result.result.place_in_queue+"位";
                             setTimeout(function(){getFloatValue(i, guid, itemLink, itemId);}, 10000);
                         }
                         else if (result.result.status==2) {
                             document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = result.result.item_floatvalue;
+                            document.getElementsByClassName('floatvalue_button')[i].parentNode.parentNode.onclick = function() {
+                                window.open(result.result.image_url);
+                            };
                         }
                     }
                     else if (result.success===false) {
@@ -69,7 +75,7 @@
         listBanner.insertBefore(childBanner, nameBanner);
     }
     function addStyle() {
-        customstyle = document.createElement("style");
+        var customstyle = document.createElement("style");
         customstyle.innerHTML = '.csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}';
         document.head.appendChild(customstyle);
     }
@@ -99,7 +105,7 @@
             i++;
         }
         var itemList = document.getElementsByClassName('market_recent_listing_row');
-        var nameList;
+        var nameList, clickedButton;
         for (i=0;i<itemList.length;i++) {
             nameList = itemList[i].children[3];
             var itemSticker = document.createElement("span");
@@ -108,10 +114,15 @@
             itemSticker.innerHTML = itemStickers[i];
             itemList[i].insertBefore(itemSticker, nameList);
             var floatButton = document.createElement("span");
-            getFloatValue(i, guid(), encodeURIComponent(itemLinks[i]), "first");
+            //getFloatValue(i, guid(), encodeURIComponent(itemLinks[i]), "first");
             floatButton.setAttribute("style", "width:15%");
             floatButton.setAttribute("class", "market_listing_right_cell market_listing_action_buttons market_listing_wear");
-            floatButton.innerHTML = '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a id='+i+' class="floatvalue_button btn_green_white_innerfade btn_small"><span>磨损查询中…</span></a></div>';
+            floatButton.onclick = function() {
+                clickedButton = this.children[0].children[0];
+                clickedButton.children[0].innerHTML = '磨损查询中…';
+                getFloatValue(clickedButton.id, guid(), encodeURIComponent(itemLinks[clickedButton.id]), "first");
+            };
+            floatButton.innerHTML = '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a id='+i+' class="floatvalue_button btn_green_white_innerfade btn_small"><span>点击查询磨损</span></a></div>';
             itemList[i].insertBefore(floatButton, nameList);
         }
         var pagelinks = document.getElementsByClassName('market_paging_pagelink');
