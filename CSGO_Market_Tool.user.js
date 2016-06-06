@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.40
+// @version      0.41
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -96,14 +96,16 @@
         var itemStickers = [];
         var reStickers = /(https+:\/\/.+?\.png)/gi;
         var reStickerDes = /Sticker\:\ (.+?)<\/center>/;
-        var StickerImgs, StickerDes;
+        var StickerImgs, StickerDes, StickerInfo, lastCount;
         var i = 0;
         for (var itemDetail in itemDetails) {
             itemLinks[i] = itemDetails[itemDetail].actions[0].link.replace("%assetid%", itemDetails[itemDetail].id);
             itemStickers[i] = '<div class="market_listing_right_cell market_listing_stickers_buttons"><div class="csgo-stickers-show" style="top: 12px;right: 300px;z-index: 3;">';
-            if (itemDetails[itemDetail].descriptions.length > 7) {
-                StickerImgs = itemDetails[itemDetail].descriptions[7].value.match(reStickers);
-                StickerDes = itemDetails[itemDetail].descriptions[7].value.match(reStickerDes)[1].split(', ');
+            lastCount = itemDetails[itemDetail].descriptions.length - 1;
+            StickerInfo = itemDetails[itemDetail].descriptions[lastCount].value;
+            if (StickerInfo.length > 1) {
+                StickerImgs = StickerInfo.match(reStickers);
+                StickerDes = StickerInfo.match(reStickerDes)[1].split(', ');
                 for (var j=0;j<StickerImgs.length;j++) {
                     itemStickers[i] += '<img class="csgo-sticker" src="'+StickerImgs[j]+'" title="'+StickerDes[j]+'">';
                 }
