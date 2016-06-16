@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.50
+// @version      0.51
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -18,7 +18,8 @@
         }
         return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
     }
-    function getFloatValue(i, guid, itemLink, itemId) {
+    function getFloatValue(listId, guid, itemLink, itemId) {
+        var cButton = document.getElementById(listId).children[4].children[0].children[0].children[0];
         if (itemId == "first") {
             GM_xmlhttpRequest({
                 method: 'get',
@@ -26,10 +27,10 @@
                 onload: function(response) {
                     var result = JSON.parse(response.responseText);
                     if (result.success===true) {
-                        setTimeout(function(){getFloatValue(i, guid, itemLink, result.result.screen_id);}, 10000);
+                        setTimeout(function(){getFloatValue(listId, guid, itemLink, result.result.screen_id);}, 10000);
                     }
                     else if (result.success===false) {
-                        document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = "查询失败";
+                        cButton.innerHTML = "查询失败";
                     }
                 }
             });
@@ -41,18 +42,18 @@
                     var result = JSON.parse(response.responseText);
                     if (result.success===true) {
                         if (result.result.status==1) {
-                            document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = "队列中：第"+result.result.place_in_queue+"位";
-                            setTimeout(function(){getFloatValue(i, guid, itemLink, itemId);}, 10000);
+                            cButton.innerHTML = "队列中：第"+result.result.place_in_queue+"位";
+                            setTimeout(function(){getFloatValue(listId, guid, itemLink, itemId);}, 10000);
                         }
                         else if (result.result.status==2) {
-                            document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = result.result.item_floatvalue;
-                            document.getElementsByClassName('floatvalue_button')[i].parentNode.parentNode.onclick = function() {
+                            cButton.innerHTML = result.result.item_floatvalue;
+                            cButton.parentNode.parentNode.parentNode.onclick = function() {
                                 window.open(result.result.image_url);
                             };
                         }
                     }
                     else if (result.success===false) {
-                        document.getElementsByClassName('floatvalue_button')[i].children[0].innerHTML = "查询失败";
+                        cButton.innerHTML = "查询失败";
                     }
                 }
             });
@@ -79,13 +80,14 @@
     }
     function reloadScript(oriId) {
         var newId = document.getElementsByClassName("market_recent_listing_row")[0].id;
-        console.log('oriId='+oriId);
-        console.log('newId='+newId);
+        var loaded = document.getElementsByClassName("market_listing_wear");
         if (newId == oriId) {
             setTimeout(function(){reloadScript(oriId);}, 200);
         }
         else {
-            handlePage();
+            if (loaded.length === 0) {
+                handlePage();
+            }
         }
     }
     function handlePage() {
@@ -134,9 +136,9 @@
             floatButton.onclick = function() {
                 clickedButton = this.children[0].children[0];
                 clickedButton.children[0].innerHTML = '磨损查询中…';
-                getFloatValue(clickedButton.id, guid(), encodeURIComponent(itemLinks[clickedButton.id]), "first");
+                getFloatValue(clickedButton.id, guid(), encodeURIComponent(itemLinks[clickedButton.getAttribute('buttonid')]), "first");
             };
-            floatButton.innerHTML = '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a id='+i+' class="floatvalue_button btn_green_white_innerfade btn_small"><span>点击查询磨损</span></a></div>';
+            floatButton.innerHTML = '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a buttonid='+i+' id='+itemList[i].id+' class="floatvalue_button btn_green_white_innerfade btn_small"><span>点击查询磨损</span></a></div>';
             itemList[i].insertBefore(floatButton, nameList);
         }
         var pagelinks = document.getElementsByClassName('market_paging_pagelink');
