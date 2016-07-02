@@ -1,7 +1,7 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.51
+// @version      0.60
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -63,6 +63,14 @@
         var listBanner = document.getElementsByClassName('market_listing_table_header')[0];
         var childBanner = document.createElement("span");
         var nameBanner = listBanner.children[2];
+        childBanner.setAttribute("style", "padding-left:4vw;");
+        nameBanner.appendChild(childBanner);
+        childBanner = document.createElement("a");
+        childBanner.setAttribute("id", "getAllFloat");
+        childBanner.setAttribute("class", "floatvalue_button btn_green_white_innerfade btn_small");
+        childBanner.innerHTML = "<span>查询所有物品磨损</span>";
+        nameBanner.appendChild(childBanner);
+        childBanner = document.createElement("span");
         childBanner.setAttribute("style", "width:20%");
         childBanner.setAttribute("class", "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker");
         childBanner.innerHTML = "印花";
@@ -121,6 +129,14 @@
         }
         var itemList = document.getElementsByClassName('market_recent_listing_row');
         var nameList, clickedButton;
+        var getAllFloat = document.getElementById('getAllFloat');
+        getAllFloat.onclick = function() {
+            var subButton = document.getElementsByClassName('floatvalue_button');
+            for (i=1;i<11;i++) {
+                subButton[i].children[0].innerHTML = '磨损查询中…';
+                getFloatValue(itemList[i-1].id, guid(), encodeURIComponent(itemLinks[i-1]), "first");
+            }
+        };
         for (i=0;i<itemList.length;i++) {
             nameList = itemList[i].children[3];
             document.getElementsByClassName('market_listing_game_name')[i].innerHTML = NameTags[i];
