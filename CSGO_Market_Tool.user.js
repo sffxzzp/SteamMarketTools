@@ -271,7 +271,6 @@
     handlePage();
     addPageCtl();
 })();
-function jmpPage() {alert("111");}
 function resize() {
     if (window.innerWidth)
         winWidth = window.innerWidth;
