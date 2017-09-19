@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.70
+// @version      0.7.1
 // @description  A script that display float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/730/*
@@ -132,6 +132,27 @@
         newButton.onclick = function () {addPanel();};
         oriButtonDiv.insertBefore(newButton, oriButton);
     }
+    function addPageCtl () {
+        var oriPageCtl = document.getElementsByClassName('market_paging_summary')[0];
+        var oriPageDiv = document.getElementById('searchResults_ctn');
+        var newPageCtl = document.createElement("div");
+        newPageCtl.setAttribute("style", "float: right; padding-right: 20px");
+        var newPageInput = document.createElement("input");
+        newPageInput.setAttribute("class", "filter_search_box market_search_filter_search_box");
+        newPageInput.setAttribute("style", "width: 20px;");
+        newPageInput.setAttribute("type", "text");
+        newPageInput.setAttribute("autocomplete", "off");
+        newPageCtl.appendChild(newPageInput);
+        var newPageGo = document.createElement("span");
+        newPageGo.setAttribute("class", "pagebtn");
+        newPageGo.onclick = function () {
+            g_oSearchResults.GoToPage( (newPageInput.value-1), true );
+            setTimeout(function(){reloadScript(document.getElementsByClassName("market_recent_listing_row")[0].id);}, 10);
+        };
+        newPageGo.innerHTML = "Go!";
+        newPageCtl.appendChild(newPageGo);
+        oriPageDiv.insertBefore(newPageCtl, oriPageCtl);
+    }
     function addBanner() {
         var listBanner = document.getElementsByClassName('market_listing_table_header')[0];
         var childBanner = document.createElement("span");
@@ -248,7 +269,9 @@
     }
     addButton();
     handlePage();
+    addPageCtl();
 })();
+function jmpPage() {alert("111");}
 function resize() {
     if (window.innerWidth)
         winWidth = window.innerWidth;
