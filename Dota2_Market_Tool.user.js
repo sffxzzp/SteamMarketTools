@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.02
+// @version      0.03
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/570/*
@@ -39,6 +39,33 @@
         newPageGo.innerHTML = "Go!";
         newPageCtl.appendChild(newPageGo);
         oriPageDiv.insertBefore(newPageCtl, oriPageCtl);
+        var newPageSizeInput = document.createElement("input");
+        newPageSizeInput.setAttribute("class", "filter_search_box market_search_filter_search_box");
+        newPageSizeInput.setAttribute("style", "width: 30px;");
+        newPageSizeInput.setAttribute("type", "text");
+        newPageSizeInput.setAttribute("autocomplete", "off");
+        var newPageSizeGo = document.createElement("span");
+        newPageSizeGo.setAttribute("class", "pagebtn");
+        newPageSizeGo.onclick = function () {
+            if (g_oSearchResults.m_cPageSize == newPageSizeInput.value) {
+                return False;
+            }
+            else {
+                var oldPageSize = g_oSearchResults.m_cPageSize;
+                g_oSearchResults.m_cPageSize = newPageSizeInput.value;
+                g_oSearchResults.m_cMaxPages = Math.ceil(g_oSearchResults.m_cTotalCount / newPageSizeInput.value);
+                g_oSearchResults.GoToPage(g_oSearchResults.m_iCurrentPage, true);
+                setTimeout(function(){reloadScript(oldPageSize);}, 10);
+            }
+        };
+        newPageSizeGo.innerHTML = "修改";
+        var newPageSizeCtl = document.createElement("div");
+        newPageSizeCtl.setAttribute("class", "market_pagesize_options");
+        newPageSizeCtl.setAttribute("style", "margin: 0 0 2em 0; font-size: 12px;");
+        newPageSizeCtl.innerHTML = "每页显示数：		";
+        newPageSizeCtl.appendChild(newPageSizeInput);
+        newPageSizeCtl.appendChild(newPageSizeGo);
+        document.getElementById('searchResults_ctn').appendChild(newPageSizeCtl);
     }
     function addBanner() {
         var listBanner = document.getElementsByClassName('market_listing_table_header')[0];
@@ -58,14 +85,26 @@
         listBanner.insertBefore(childBanner, nameBanner);
     }
     function reloadScript(oriId) {
-        var newId = document.getElementsByClassName("market_recent_listing_row")[0].id;
         var loaded = document.getElementsByClassName("market_listing_wear");
-        if (newId == oriId) {
-            setTimeout(function(){reloadScript(oriId);}, 200);
+        if (typeof(oriId) === "number") {
+            if (document.getElementById('searchResultsRows').getElementsByClassName('market_listing_row').length == oriId) {
+                setTimeout(function(){reloadScript(oriId);}, 200);
+            }
+            else {
+                if (loaded.length === 0) {
+                    handlePage();
+                }
+            }
         }
         else {
-            if (loaded.length === 0) {
-                handlePage();
+            var newId = document.getElementsByClassName("market_recent_listing_row")[0].id;
+            if (newId == oriId) {
+                setTimeout(function(){reloadScript(oriId);}, 200);
+            }
+            else {
+                if (loaded.length === 0) {
+                    handlePage();
+                }
             }
         }
     }
