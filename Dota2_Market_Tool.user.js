@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.11
+// @version      0.12
 // @description  A script that improves display in market list.
 // @author       sffxzzp
-// @match        http://steamcommunity.com/market/listings/570/*
+// @match        *://steamcommunity.com/market/listings/570/*
 // @icon         http://steamcommunity.com/favicon.ico
 // @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/Dota2_Market_Tool.user.js
 // ==/UserScript==
