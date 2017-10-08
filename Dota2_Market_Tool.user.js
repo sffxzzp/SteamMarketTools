@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.10
+// @version      0.11
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/570/*
@@ -114,6 +114,7 @@
         var itemGems = [];
         var reGemDes = /<span style="font-size: 18px;.+?">(.*?)<\/span><br>/gi;
         var reGemColor = /rgb\(.+?\)/gi;
+        var reTour = /tournament_info/g;
         var GemInfo, GemDes, GemColor, lastCount, UnlockDes, UnlockColor;
         var i = 0;
         for (var itemDetail in itemDetails) {
@@ -123,6 +124,13 @@
             if (GemInfo.length > 1) {
                 GemDes = GemInfo.match(reGemDes);
                 GemColor = [];
+                if (GemDes === null) {
+                    GemDes = GemInfo.match(reTour);
+                    if (GemDes !== null) {
+                        GemInfo = itemDetails[itemDetail].descriptions[lastCount-1].value;
+                    }
+                    GemDes = GemInfo.match(reGemDes);
+                }
                 if (GemDes !== null) {
                     for (var j = 0;j<GemDes.length;j++) {
                         GemColor[j] = GemDes[j].match(reGemColor)[0];
