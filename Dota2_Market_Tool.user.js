@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.04
+// @version      0.10
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/570/*
@@ -127,8 +127,11 @@
                     for (var j = 0;j<GemDes.length;j++) {
                         GemColor[j] = GemDes[j].match(reGemColor)[0];
                         GemDes[j] = GemDes[j].replace(/<.+?>/g, '');
-                        itemGems[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: "+GemColor[j]+"\">&nbsp;"+GemDes[j]+"&nbsp;</span>";
+                        itemGems[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: "+GemColor[j]+"\">"+GemDes[j]+"</span>";
                     }
+                }
+                else {
+                    itemGems[i] += "<p></p>";
                 }
             }
             itemGems[i] += "</div>";
@@ -138,7 +141,7 @@
                 UnlockColor = itemDetails[itemDetail].descriptions[k].color;
                 if ((UnlockDes.substr(0, 2) == " *" || UnlockDes.substr(0, 2) == " -") && UnlockColor != "ff4040") {
                     UnlockDes = UnlockDes.substr(3);
-                    itemUnlocks[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: #"+UnlockColor+"\">&nbsp;"+UnlockDes+"&nbsp;</span>";
+                    itemUnlocks[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: #"+UnlockColor+"\">"+UnlockDes+"</span>";
                 }
             }
             itemUnlocks[i] += "</div>";
