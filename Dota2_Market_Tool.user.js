@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.03
+// @version      0.04
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        http://steamcommunity.com/market/listings/570/*
@@ -31,12 +31,12 @@
         newPageInput.setAttribute("autocomplete", "off");
         newPageCtl.appendChild(newPageInput);
         var newPageGo = document.createElement("span");
-        newPageGo.setAttribute("class", "pagebtn");
+        newPageGo.setAttribute("class", "btn_darkblue_white_innerfade btn_small");
         newPageGo.onclick = function () {
             g_oSearchResults.GoToPage( (newPageInput.value-1), true );
-            setTimeout(function(){reloadScript(document.getElementsByClassName("market_recent_listing_row")[0].id);}, 10);
+            setTimeout(function(){reloadScript(document.getElementsByClassName("market_recent_listing_row")[0].id);}, 100);
         };
-        newPageGo.innerHTML = "Go!";
+        newPageGo.innerHTML = "&nbsp;Go!&nbsp;";
         newPageCtl.appendChild(newPageGo);
         oriPageDiv.insertBefore(newPageCtl, oriPageCtl);
         var newPageSizeInput = document.createElement("input");
@@ -45,12 +45,9 @@
         newPageSizeInput.setAttribute("type", "text");
         newPageSizeInput.setAttribute("autocomplete", "off");
         var newPageSizeGo = document.createElement("span");
-        newPageSizeGo.setAttribute("class", "pagebtn");
+        newPageSizeGo.setAttribute("class", "btn_darkblue_white_innerfade btn_small");
         newPageSizeGo.onclick = function () {
-            if (g_oSearchResults.m_cPageSize == newPageSizeInput.value) {
-                return False;
-            }
-            else {
+            if (g_oSearchResults.m_cPageSize != newPageSizeInput.value && newPageSizeInput.value < 101) {
                 var oldPageSize = g_oSearchResults.m_cPageSize;
                 g_oSearchResults.m_cPageSize = newPageSizeInput.value;
                 g_oSearchResults.m_cMaxPages = Math.ceil(g_oSearchResults.m_cTotalCount / newPageSizeInput.value);
@@ -58,7 +55,7 @@
                 setTimeout(function(){reloadScript(oldPageSize);}, 10);
             }
         };
-        newPageSizeGo.innerHTML = "修改";
+        newPageSizeGo.innerHTML = "&nbsp;修改&nbsp;";
         var newPageSizeCtl = document.createElement("div");
         newPageSizeCtl.setAttribute("class", "market_pagesize_options");
         newPageSizeCtl.setAttribute("style", "margin: 0 0 2em 0; font-size: 12px;");
