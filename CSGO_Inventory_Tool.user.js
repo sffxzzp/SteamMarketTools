@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Inventory Float Value
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.01
+// @version      0.02
 // @description  A script that displays float value & screenshot of csgo skins
 // @author       sffxzzp
 // @match        *://steamcommunity.com/*/inventory*
@@ -35,11 +35,12 @@
                         xhrData.url,
                         true
                     );
-                    if (xhrData.method === "POST")
+                    if (xhrData.method === "POST") {
                         xhr.setRequestHeader(
                             "content-type",
                             "application/x-www-form-urlencoded; charset=utf-8"
                         );
+                    }
                     if (xhrData.cookie) xhr.withCredentials = true;
                     xhr.responseType = xhrData.responseType || "";
                     xhr.timeout = 3e4;
