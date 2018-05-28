@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      1.01
+// @version      1.02
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -35,11 +35,12 @@
                         xhrData.url,
                         true
                     );
-                    if (xhrData.method === "POST")
+                    if (xhrData.method === "POST") {
                         xhr.setRequestHeader(
                             "content-type",
                             "application/x-www-form-urlencoded; charset=utf-8"
                         );
+                    }
                     if (xhrData.cookie) xhr.withCredentials = true;
                     xhr.responseType = xhrData.responseType || "";
                     xhr.timeout = 3e4;
@@ -153,7 +154,7 @@
             childBanner = util.createElement({node: "a", content: {id: "getAllFloat", class: "btn_darkblue_white_innerfade btn_small"}, html: "<span>查询所有物品磨损</span>"});
             childBanner.onclick = function() {
                 var subButton = document.getElementsByClassName('floatvalue_button');
-                for (i=0;i<subButton.length;i++) {
+                for (var i=0;i<subButton.length;i++) {
                     subButton[i].click();
                 }
                 this.onclick = function () {};
@@ -200,7 +201,7 @@
         csgomt.prototype.load = function () {
             var _this = this;
             let isHandled = document.getElementsByClassName("market_listing_table_header")[0].children.length;
-            if (isHandled > 3) {return False;}
+            if (isHandled > 3) {return false;}
             this.addBanner();
             this.addStyle();
             let itemDetails = g_rgAssets[730][2];
