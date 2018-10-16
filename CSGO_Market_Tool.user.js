@@ -55,15 +55,6 @@
                 }
             });
         };
-        util.wrun = function (data) {
-            setTimeout(data.run||null, data.ms);
-        };
-        util.guid = function () {
-            function S4() {
-                return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-            }
-            return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-        };
         util.createElement = function (data) {
             var node;
             if (data.node) {
@@ -87,7 +78,6 @@
                 }
             }
         };
-        util.getElement = function (data) {};
         return util;
     })();
     var csgomt = (function () {
