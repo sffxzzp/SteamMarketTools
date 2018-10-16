@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      1.02
+// @version      1.04
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
 // @icon         https://steamcommunity.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      metjm.net
+// @connect      api.csgofloat.com
 // @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Market_Tool.user.js
 // ==/UserScript==
 
@@ -91,51 +92,22 @@
     })();
     var csgomt = (function () {
         function csgomt() {}
-        csgomt.prototype.getFloatValue = function (node, guid, itemId) {
+        csgomt.prototype.getFloatValue = function (node) {
             let _this = this;
-            if (itemId=="first") {
-                util.xhr({
-                    url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_new_link&user_uuid="+guid+"&user_client=1&custom_rotation_id=0&use_logo=0&mode=7&resolution=2&forceOpskins=0&inspect_link="+encodeURIComponent(node.getAttribute("link"))
-                }).then(function (result) {
-                    result = JSON.parse(result.body);
-                    if (result.success===true) {
-                        node.onclick = function () {};
-                        _this.getFloatValue(node, guid, result.result.screen_id);
-                    }
-                    else if (result.success===false) {
-                        node.innerHTML = "<span>查询失败</span>";
-                    }
-                });
-            }
-            else {
-                util.xhr({
-                    url: "http://metjm.net/shared/screenshots-v5.php?cmd=request_screenshot_status&id="+itemId,
-                }).then(function (result) {
-                    result = JSON.parse(result.body);
-                    if (result.success===true) {
-                        if (result.result.status==1) {
-                            if (result.result.item_floatvalue===0) {
-                                node.innerHTML = "<span>队列中：第"+result.result.place_in_queue+"位</span>";
-                            }
-                            else if (result.result.item_floatvalue > 0) {
-                                node.innerHTML = "<span>"+result.result.item_floatvalue+"</span>";
-                            }
-                            util.wrun({ run: function () { _this.getFloatValue(node, guid, itemId); }, ms: 10000});
-                        }
-                        else if (result.result.status==2) {
-                            node.innerHTML = "<span>"+result.result.item_floatvalue+"</span>";
-                            node.className="btn_green_white_innerfade btn_small";
-                            node.onclick = function() {
-                                window.open(result.result.image_url);
-                            };
-                            localStorage.setItem(node.id, JSON.stringify({fv:result.result.item_floatvalue, url:result.result.image_url}));
-                        }
-                    }
-                    else if (result.success===false) {
-                        node.innerHTML = "查询失败";
-                    }
-                });
-            }
+            util.xhr({
+                url: "https://api.csgofloat.com/?url="+node.getAttribute("link")
+            }).then(function (result) {
+                result = JSON.parse(result.body);
+                if (result.iteminfo) {
+                    node.onclick = function () {};
+                    node.innerHTML = "<span>"+result.iteminfo.floatvalue.toFixed(14)+"</span>";
+                    node.className="btn_green_white_innerfade btn_small";
+                    localStorage.setItem(node.id, JSON.stringify({fv:result.iteminfo.floatvalue.toFixed(14)}));
+                }
+                else {
+                    node.innerHTML = "<span>查询失败</span>";
+                }
+            });
         };
         csgomt.prototype.addButton = function () {
             let oriButtonDiv = document.getElementById('market_buyorder_info').children[0];
@@ -209,7 +181,7 @@
             let itemStickers = [];
             var NameTags = [];
             let reStickers = /(https+:\/\/.+?\.png)/gi;
-            let reStickerDes = /Sticker\:\ (.+?)<\/center>/;
+            let reStickerDes = /<br>.{2,4}\: (.+?)<\/center>/;
             var StickerImgs, StickerDes, StickerInfo, lastCount;
             let i = 0;
             for (var itemDetail in itemDetails) {
@@ -242,16 +214,13 @@
                 if (savedItem) {
                     savedItem = JSON.parse(savedItem);
                     floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemLinks[i]+' id='+itemList[i].id+' class="btn_green_white_innerfade btn_small"><span>'+savedItem.fv+'</span></a></div>'});
-                    floatButton.onclick = function () {
-                        window.open(savedItem.url);
-                    };
                 }
                 else {
                     floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemLinks[i]+' id='+itemList[i].id+' class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
                     floatButton.onclick = function () {
                         let clickedButton = this.children[0].children[0];
                         util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
-                        _this.getFloatValue(clickedButton, util.guid(), "first");
+                        _this.getFloatValue(clickedButton);
                         this.onclick = function () {};
                     };
                 }
