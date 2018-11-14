@@ -5,7 +5,7 @@
 // @description  A script that displays float value & screenshot of csgo skins
 // @author       sffxzzp
 // @match        *://steamcommunity.com/*/inventory*
-// @icon         https://steamcommunity.com/favicon.ico
+// @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      api.csgofloat.com
 // @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Inventory_Tool.user.js

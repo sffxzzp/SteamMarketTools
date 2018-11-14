@@ -5,7 +5,7 @@
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/570/*
-// @icon         https://steamcommunity.com/favicon.ico
+// @icon         https://store.steampowered.com/favicon.ico
 // @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/Dota2_Market_Tool.user.js
 // ==/UserScript==
 

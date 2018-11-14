@@ -5,7 +5,7 @@
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
-// @icon         https://steamcommunity.com/favicon.ico
+// @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      metjm.net
 // @connect      api.csgofloat.com
