@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         CSGO Inventory Float Value
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.03
+// @version      0.05
 // @description  A script that displays float value & screenshot of csgo skins
 // @author       sffxzzp
 // @match        *://steamcommunity.com/*/inventory*
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      api.csgofloat.com
-// @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Inventory_Tool.user.js
+// @updateURL    https://coding.net/u/sffxzzp/p/SteamMarketTools/git/raw/master/CSGO_Inventory_Tool.user.js
 // ==/UserScript==
 
 (function() {
@@ -20,6 +20,7 @@
                     GM_xmlhttpRequest({
                         method: xhrData.method || "get",
                         url: xhrData.url,
+                        data: xhrData.data,
                         responseType: xhrData.type || "",
                         timeout: 3e4,
                         onload: function onload(res) {

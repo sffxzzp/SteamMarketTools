@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.02
+// @version      2.05
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -9,7 +9,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      metjm.net
 // @connect      api.csgofloat.com
-// @updateURL    https://coding.net/u/sffxzzp/p/CSGO-Market-Tool/git/raw/master/CSGO_Market_Tool.user.js
+// @updateURL    https://coding.net/u/sffxzzp/p/SteamMarketTools/git/raw/master/CSGO_Market_Tool.user.js
 // ==/UserScript==
 
 (function() {
@@ -21,6 +21,7 @@
                     GM_xmlhttpRequest({
                         method: xhrData.method || "get",
                         url: xhrData.url,
+                        data: xhrData.data,
                         responseType: xhrData.type || "",
                         timeout: 3e4,
                         onload: function onload(res) {
