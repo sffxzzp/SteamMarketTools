@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      1.04
+// @version      2.00
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -82,6 +82,27 @@
     })();
     var csgomt = (function () {
         function csgomt() {}
+        csgomt.prototype.parseResult = function (result) {
+            console.log(result);
+            let retResult = {"floatvalue": result.iteminfo.floatvalue.toFixed(14)};
+            let stickerConts = result.iteminfo.stickers;
+            if (stickerConts.length > 0) {
+                let stickerText = "印花：";
+                for (let i=0;i<stickerConts.length;i++) {
+                    if (stickerConts[i].wear==null) {stickerText += "100% ";}
+                    else {let tmpNum = (1-stickerConts[i].wear)*100;stickerText += tmpNum.toFixed(2)+"% ";}
+                }
+                retResult.stickerText = stickerText;
+            }
+            if (result.iteminfo.imageurl.indexOf('phase')>=0) {
+                let dopplerText = "多普勒：";
+                let dopplerRe = /phase\d/gi;
+                dopplerText += result.iteminfo.imageurl.match(dopplerRe)[0];
+                retResult.dopplerText = dopplerText;
+            }
+            console.log(retResult);
+            return retResult;
+        }
         csgomt.prototype.getFloatValue = function (node) {
             let _this = this;
             util.xhr({
@@ -90,9 +111,19 @@
                 result = JSON.parse(result.body);
                 if (result.iteminfo) {
                     node.onclick = function () {};
-                    node.innerHTML = "<span>"+result.iteminfo.floatvalue.toFixed(14)+"</span>";
+                    let finalResult = _this.parseResult(result);
+                    node.innerHTML = "<span>"+finalResult.floatvalue+"</span>";
                     node.className="btn_green_white_innerfade btn_small";
-                    localStorage.setItem(node.id, JSON.stringify({fv:result.iteminfo.floatvalue.toFixed(14)}));
+                    let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
+                    if (finalResult.hasOwnProperty('stickerText')) {
+                        let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: finalResult.stickerText});
+                        nameList.appendChild(stickerWear);
+                    }
+                    if (finalResult.hasOwnProperty('dopplerText')) {
+                        let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: finalResult.dopplerText});
+                        nameList.appendChild(dopplerPhase);
+                    }
+                    localStorage.setItem(node.id, JSON.stringify(finalResult));
                 }
                 else {
                     node.innerHTML = "<span>查询失败</span>";
@@ -167,46 +198,55 @@
             this.addBanner();
             this.addStyle();
             let itemDetails = g_rgAssets[730][2];
-            let itemLinks = [];
-            let itemStickers = [];
-            var NameTags = [];
+            let itemListInfo = g_rgListingInfo;
+            let itemInfo = {};
             let reStickers = /(https+:\/\/.+?\.png)/gi;
             let reStickerDes = /<br>.{2,4}\: (.+?)<\/center>/;
-            var StickerImgs, StickerDes, StickerInfo, lastCount;
-            let i = 0;
-            for (var itemDetail in itemDetails) {
-                itemLinks[i] = itemDetails[itemDetail].actions[0].link.replace("%assetid%", itemDetails[itemDetail].id);
-                itemStickers[i] = '<div class="market_listing_right_cell market_listing_stickers_buttons"><div class="csgo-stickers-show" style="top: 12px;right: 300px;z-index: 3;">';
-                lastCount = itemDetails[itemDetail].descriptions.length - 1;
-                NameTags[i] = itemDetails[itemDetail].hasOwnProperty('fraudwarnings')?itemDetails[itemDetail].fraudwarnings[0]:'';
-                StickerInfo = itemDetails[itemDetail].descriptions[lastCount].value;
-                if (StickerInfo.length > 1) {
-                    StickerImgs = StickerInfo.match(reStickers);
-                    StickerDes = StickerInfo.match(reStickerDes)[1].split(', ');
-                    for (let j=0;j<StickerImgs.length;j++) {
-                        itemStickers[i] += '<img class="csgo-sticker" src="'+StickerImgs[j]+'" title="'+StickerDes[j]+'">';
+            for (var listingid in itemListInfo) {
+                itemInfo[itemListInfo[listingid].asset.id] = {};
+            }
+            for (var assetid in itemDetails) {
+                itemInfo[assetid].link = itemDetails[assetid].actions[0].link.replace("%assetid%", assetid);
+                itemInfo[assetid].nametag = itemDetails[assetid].hasOwnProperty('fraudwarnings')?itemDetails[assetid].fraudwarnings[0]:'';
+                let sticker = '<div class="market_listing_right_cell market_listing_stickers_buttons"><div class="csgo-stickers-show" style="top: 12px;right: 300px;z-index: 3;">';
+                let stickerInfo = itemDetails[assetid].descriptions[itemDetails[assetid].descriptions.length-1].value;
+                if (stickerInfo.length > 1) {
+                    let stickerImgs = stickerInfo.match(reStickers);
+                    let stickerDes = stickerInfo.match(reStickerDes)[1].split(', ');
+                    for (let i=0;i<stickerImgs.length;i++) {
+                        sticker += '<img class="csgo-sticker" src="'+stickerImgs[i]+'" title="'+stickerDes[i]+'">';
                     }
-                } else {
-                    itemStickers[i] += '<img class="csgo-sticker">';
                 }
-                itemStickers[i] += '</div></div>';
-                i++;
+                else {
+                    sticker += '<img class="csgo-sticker">';
+                }
+                itemInfo[assetid].sticker = sticker + '</div></div>';
             }
             let itemList = document.getElementsByClassName('market_recent_listing_row');
             for (let i=0;i<itemList.length;i++) {
+                let listingid = itemList[i].id.substring(8);
+                let assetid = itemListInfo[listingid].asset.id;
                 let floatButton;
                 let nameList = itemList[i].children[3];
                 let namePlace = nameList.children[2];
-                util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: NameTags[i]});
-                let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemStickers[i]});
+                util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: itemInfo[assetid].nametag});
+                let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
                 itemList[i].insertBefore(itemSticker, nameList);
-                let savedItem = localStorage.getItem(itemList[i].id);
+                let savedItem = localStorage.getItem(listingid);
                 if (savedItem) {
                     savedItem = JSON.parse(savedItem);
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemLinks[i]+' id='+itemList[i].id+' class="btn_green_white_innerfade btn_small"><span>'+savedItem.fv+'</span></a></div>'});
+                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemInfo[assetid].link+' id='+listingid+' class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
+                    if (savedItem.hasOwnProperty('stickerText')) {
+                        let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: savedItem.stickerText});
+                        nameList.appendChild(stickerWear);
+                    }
+                    if (savedItem.hasOwnProperty('dopplerText')) {
+                        let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: savedItem.dopplerText});
+                        nameList.appendChild(dopplerPhase);
+                    }
                 }
                 else {
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemLinks[i]+' id='+itemList[i].id+' class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
+                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemInfo[assetid].link+' id='+listingid+' class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
                     floatButton.onclick = function () {
                         let clickedButton = this.children[0].children[0];
                         util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
