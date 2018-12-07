@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      1.01
+// @version      1.02
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/570/*
@@ -84,59 +84,59 @@
             if (isHandled > 3) {return false;}
             _this.addBanner();
             let itemDetails = g_rgAssets[570][2];
-            let itemUnlocks = [];
-            let itemGems = [];
+            let itemListInfo = g_rgListingInfo;
+            let itemInfo = {};
             let reGemDes = /<span style="font-size: 18px;.+?">(.*?)<\/span><br>/gi;
             let reGemColor = /rgb\(.+?\)/gi;
             let reTour = /tournament_info/g;
-            let GemInfo, GemDes, GemColor, lastCount, UnlockDes, UnlockColor;
-            let i = 0;
-            for (let itemDetail in itemDetails) {
-                itemGems[i] = "<div>";
-                lastCount = itemDetails[itemDetail].descriptions.length - 1;
-                GemInfo = itemDetails[itemDetail].descriptions[lastCount].value;
-                if (GemInfo.length > 1) {
-                    GemDes = GemInfo.match(reGemDes);
-                    GemColor = [];
-                    if (GemDes === null) {
-                        GemDes = GemInfo.match(reTour);
-                        if (GemDes !== null) {
-                            GemInfo = itemDetails[itemDetail].descriptions[lastCount-1].value;
+            for (var listingid in itemListInfo) {
+                itemInfo[itemListInfo[listingid].asset.id] = {};
+            }
+            for (let assetid in itemDetails) {
+                let gems = "<div>";
+                let lastCount = itemDetails[assetid].descriptions.length-1;
+                let gemInfo = itemDetails[assetid].descriptions[lastCount].value;
+                if (gemInfo.length > 1) {
+                    let gemDes = gemInfo.match(reGemDes);
+                    let gemColor = [];
+                    if (gemDes === null) {
+                        gemDes = gemInfo.match(reTour);
+                        if (gemDes !== null) {
+                            gemInfo = itemDetails[assetid].descriptions[lastCount-1].value;
                         }
-                        GemDes = GemInfo.match(reGemDes);
+                        gemDes = gemInfo.match(reGemDes);
                     }
-                    if (GemDes !== null) {
-                        for (let j = 0;j<GemDes.length;j++) {
-                            GemColor[j] = GemDes[j].match(reGemColor)[0];
-                            GemDes[j] = GemDes[j].replace(/<.+?>/g, '');
-                            itemGems[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: "+GemColor[j]+"\">"+GemDes[j]+"</span>";
+                    if (gemDes !== null) {
+                        for (let j = 0;j<gemDes.length;j++) {
+                            gemColor[j] = gemDes[j].match(reGemColor)[0];
+                            gemDes[j] = gemDes[j].replace(/<.+?>/g, '');
+                            gems += "<span style=\"float: left; line-height: initial; width: 100%; color: "+gemColor[j]+"\">"+gemDes[j]+"</span>";
                         }
                     }
                     else {
-                        itemGems[i] += "<p></p>";
+                        gems += "<p></p>";
                     }
                 }
-                itemGems[i] += "</div>";
-                itemUnlocks[i] = "<div>";
-                for (let k = 0; k < itemDetails[itemDetail].descriptions.length; k++) {
-                    UnlockDes = itemDetails[itemDetail].descriptions[k].value;
-                    UnlockColor = itemDetails[itemDetail].descriptions[k].color;
-                    console.log(itemDetails[itemDetail]);
-                    if (UnlockColor == "9da1a9" || UnlockColor == "6c7075") {
-                        UnlockDes = UnlockDes;
-                        itemUnlocks[i] += "<span style=\"float: left; line-height: initial; width: 100%; color: #"+UnlockColor+"\">"+UnlockDes+"</span>";
+                itemInfo[assetid].gems = gems + "</div>";
+                let unlocks = "<div>";
+                for (let k = 0; k < itemDetails[assetid].descriptions.length; k++) {
+                    let unlockDes = itemDetails[assetid].descriptions[k].value;
+                    let unlockColor = itemDetails[assetid].descriptions[k].color;
+                    if (unlockColor == "9da1a9" || unlockColor == "6c7075") {
+                        unlocks += "<span style=\"float: left; line-height: initial; width: 100%; color: #"+unlockColor+"\">"+unlockDes+"</span>";
                     }
                 }
-                itemUnlocks[i] += "</div>";
-                i++;
+                itemInfo[assetid].unlocks = unlocks + "</div>";
             }
             let itemList = document.getElementsByClassName('market_recent_listing_row');
             let nameList;
-            for (i=0;i<itemList.length;i++) {
+            for (let i=0;i<itemList.length;i++) {
+                let listingid = itemList[i].id.substring(8);
+                let assetid = itemListInfo[listingid].asset.id;
                 nameList = itemList[i].children[3];
-                let itemGem = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell"}, html: itemGems[i]});
+                let itemGem = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell"}, html: itemInfo[assetid].gems});
                 itemList[i].insertBefore(itemGem, nameList);
-                let itemUnlock = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell"}, html: itemUnlocks[i]});
+                let itemUnlock = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell"}, html: itemInfo[assetid].unlocks});
                 itemList[i].insertBefore(itemUnlock, nameList);
             }
         }
