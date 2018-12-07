@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.00
+// @version      2.01
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -136,6 +136,7 @@
             let newButton = util.createElement({node: "div", content: {style: "float: right; padding-right: 10px;"}, html: "<a class=\"btn_blue_white_innerfade btn_medium market_noncommodity_buyorder_button\" href=\"javascript:void(0)\"><span>清除本地缓存</span></a>"});
             newButton.onclick = function () {
                 localStorage.clear();
+                alert("清理完毕！");
             };
             oriButtonDiv.insertBefore(newButton, oriButton);
         };
@@ -251,7 +252,6 @@
                         let clickedButton = this.children[0].children[0];
                         util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
                         _this.getFloatValue(clickedButton);
-                        this.onclick = function () {};
                     };
                 }
                 itemList[i].insertBefore(floatButton, nameList);
