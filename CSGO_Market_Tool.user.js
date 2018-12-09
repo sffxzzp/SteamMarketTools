@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.06
+// @version      2.07
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -144,15 +144,6 @@
             let listBanner = document.getElementsByClassName('market_listing_table_header')[0];
             let nameBanner = listBanner.children[2];
             let childBanner = util.createElement({node: "span", content:{style: "padding-left: 4vw;"}});
-            nameBanner.appendChild(childBanner);
-            childBanner = util.createElement({node: "a", content: {id: "getAllFloat", class: "btn_darkblue_white_innerfade btn_small"}, html: "<span>查询所有物品磨损</span>"});
-            childBanner.onclick = function() {
-                var subButton = document.getElementsByClassName('floatvalue_button');
-                for (var i=0;i<subButton.length;i++) {
-                    subButton[i].click();
-                }
-                this.onclick = function () {};
-            };
             nameBanner.appendChild(childBanner);
             childBanner = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker"}, html: "印花"});
             listBanner.insertBefore(childBanner, nameBanner);
