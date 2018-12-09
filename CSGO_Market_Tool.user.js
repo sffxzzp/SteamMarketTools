@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.05
+// @version      2.06
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
-// @connect      metjm.net
 // @connect      api.csgofloat.com
 // @updateURL    https://coding.net/u/sffxzzp/p/SteamMarketTools/git/raw/master/CSGO_Market_Tool.user.js
 // ==/UserScript==
