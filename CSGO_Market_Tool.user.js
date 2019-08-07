@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.08
+// @version      2.09
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -112,6 +112,8 @@
                 if (result.iteminfo) {
                     node.parentNode.parentNode.onclick = function () {};
                     let finalResult = _this.parseResult(result);
+                    node.target = "_blank";
+                    node.href = "https://csgo.gallery/"+node.getAttribute("link");
                     node.innerHTML = "<span>"+finalResult.floatvalue+"</span>";
                     node.className="btn_green_white_innerfade btn_small";
                     let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
@@ -232,7 +234,7 @@
                 let savedItem = localStorage.getItem(listingid);
                 if (savedItem) {
                     savedItem = JSON.parse(savedItem);
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemInfo[assetid].link+' id='+listingid+' class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
+                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a target="_blank" href="https://csgo.gallery/'+itemInfo[assetid].link+'" id="'+listingid+'" class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
                     if (savedItem.hasOwnProperty('stickerText')) {
                         let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: savedItem.stickerText});
                         nameList.appendChild(stickerWear);
@@ -243,7 +245,7 @@
                     }
                 }
                 else {
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link='+itemInfo[assetid].link+' id='+listingid+' class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
+                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" id="'+listingid+'" class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
                     floatButton.onclick = function () {
                         let clickedButton = this.children[0].children[0];
                         util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
