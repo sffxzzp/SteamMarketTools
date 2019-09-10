@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.09
+// @version      2.10
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -9,6 +9,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      api.csgofloat.com
 // @updateURL    https://coding.net/u/sffxzzp/p/SteamMarketTools/git/raw/master/CSGO_Market_Tool.user.js
+// @grant        unsafeWindow
 // ==/UserScript==
 
 (function() {
@@ -165,7 +166,7 @@
             newPageCtl.appendChild(newPageInput);
             let newPageGo = util.createElement({node: "span", content: {class: "btn_darkblue_white_innerfade btn_small"}, html: "&nbsp;Go!&nbsp;"});
             newPageGo.onclick = function () {
-                g_oSearchResults.GoToPage( (newPageInput.value-1), true );
+                unsafeWindow.g_oSearchResults.GoToPage( (newPageInput.value-1), true );
                 newPageInput.value = "";
             };
             newPageCtl.appendChild(newPageGo);
@@ -174,11 +175,11 @@
             let newPageSizeInput = util.createElement({node: "input", content: {class: "filter_search_box market_search_filter_search_box", style: "width: 30px;", type: "text", autocomplete: "off"}});
             let newPageSizeGo = util.createElement({node: "span", content: {class: "btn_darkblue_white_innerfade btn_small"}, html: "&nbsp;修改&nbsp;"});
             newPageSizeGo.onclick = function () {
-                if (g_oSearchResults.m_cPageSize != newPageSizeInput.value && newPageSizeInput.value < 101) {
-                    let oldPageSize = g_oSearchResults.m_cPageSize;
-                    g_oSearchResults.m_cPageSize = newPageSizeInput.value;
-                    g_oSearchResults.m_cMaxPages = Math.ceil(g_oSearchResults.m_cTotalCount / newPageSizeInput.value);
-                    g_oSearchResults.GoToPage(g_oSearchResults.m_iCurrentPage, true);
+                if (unsafeWindow.g_oSearchResults.m_cPageSize != newPageSizeInput.value && newPageSizeInput.value < 101) {
+                    let oldPageSize = unsafeWindow.g_oSearchResults.m_cPageSize;
+                    unsafeWindow.g_oSearchResults.m_cPageSize = newPageSizeInput.value;
+                    unsafeWindow.g_oSearchResults.m_cMaxPages = Math.ceil(unsafeWindow.g_oSearchResults.m_cTotalCount / newPageSizeInput.value);
+                    unsafeWindow.g_oSearchResults.GoToPage(unsafeWindow.g_oSearchResults.m_iCurrentPage, true);
                 }
                 newPageSizeInput.value = "";
             };
@@ -193,8 +194,8 @@
             if (isHandled > 3) {return false;}
             this.addBanner();
             this.addStyle();
-            let itemDetails = g_rgAssets[730][2];
-            let itemListInfo = g_rgListingInfo;
+            let itemDetails = unsafeWindow.g_rgAssets[730][2];
+            let itemListInfo = unsafeWindow.g_rgListingInfo;
             let itemInfo = {};
             let reStickers = /(https+:\/\/.+?\.png)/gi;
             let reStickerDes = /<br>.{2,4}\: (.+?)<\/center>/;
@@ -205,7 +206,7 @@
                 itemInfo[assetid].link = itemDetails[assetid].actions[0].link.replace("%assetid%", assetid);
                 itemInfo[assetid].nametag = itemDetails[assetid].hasOwnProperty('fraudwarnings')?itemDetails[assetid].fraudwarnings[0]:'';
                 let sticker = '<div class="market_listing_right_cell market_listing_stickers_buttons"><div class="csgo-stickers-show" style="top: 12px;right: 300px;z-index: 3;">';
-                let stickerInfo = itemDetails[assetid].descriptions[itemDetails[assetid].descriptions.length-1].value;
+                let stickerInfo = itemDetails[assetid].descriptions[itemDetails[assetid].descriptions.length-1].value.replace(/\r/gi, '').replace(/\n/gi, '');
                 if (stickerInfo.length > 1) {
                     let stickerImgs = stickerInfo.match(reStickers);
                     let stickerDes = stickerInfo.match(reStickerDes)[1].split(', ');
