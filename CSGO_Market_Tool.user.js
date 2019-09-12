@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.10
+// @version      2.20
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -105,7 +105,7 @@
             return retResult;
         }
         csgomt.prototype.getFloatValue = function (node) {
-            let _this = this;
+            var _this = this;
             util.xhr({
                 url: "https://api.csgofloat.com/?url="+node.getAttribute("link")
             }).then(function (result) {
@@ -187,6 +187,42 @@
             newPageSizeCtl.appendChild(newPageSizeGo);
             document.getElementById('searchResults_ctn').appendChild(newPageSizeCtl);
         };
+        csgomt.prototype.addType = function () {
+            var _this = this;
+            var type = {
+                "FN": {"name": "崭新出厂", "des": encodeURIComponent("Factory New"), "class": "btn_green_white_innerfade"},
+                "MW": {"name": "略有磨损", "des": encodeURIComponent("Minimal Wear"), "class": "btn_blue_white_innerfade"},
+                "FT": {"name": "久经沙场", "des": encodeURIComponent("Field-Tested"), "class": "btn_darkblue_white_innerfade"},
+                "WW": {"name": "破损不堪", "des": encodeURIComponent("Well-Worn"), "class": "btn_grey_white_innerfade"},
+                "BS": {"name": "战痕累累", "des": encodeURIComponent("Battle-Scarred"), "class": "btn_darkred_white_innerfade"}
+            };
+            let oriLink = location.href.split('/');
+            oriLink = oriLink[oriLink.length-1];
+            let curType = null;
+            for (let i in type) {
+                if (RegExp(type[i].des).test(oriLink)) {
+                    curType = i;
+                    break;
+                }
+            }
+            let oriButton = document.getElementById('largeiteminfo_item_actions');
+            if (curType != null) {
+                oriButton.append(document.createElement('br'));
+                for (let i in type) {
+                    if (i != curType) {
+                        let newBtn = util.createElement({
+                            "node": "a",
+                            "content": {
+                                "class": "btn_small "+type[i].class,
+                                "href": location.href.replace(type[curType].des, type[i].des)
+                            },
+                            "html": "<span>"+type[i].name+"</span>"
+                        });
+                        oriButton.append(newBtn);
+                    }
+                }
+            }
+        }
         csgomt.prototype.load = function () {
             var _this = this;
             let isHandled = document.getElementsByClassName("market_listing_table_header");
@@ -194,6 +230,7 @@
             if (isHandled > 3) {return false;}
             this.addBanner();
             this.addStyle();
+            this.addType();
             let itemDetails = unsafeWindow.g_rgAssets[730][2];
             let itemListInfo = unsafeWindow.g_rgListingInfo;
             let itemInfo = {};
