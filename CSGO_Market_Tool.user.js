@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.22
+// @version      2.23
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -211,18 +211,34 @@
                 for (let i in type) {
                     if (i != curType) {
                         let newBtn = util.createElement({
-                            "node": "a",
-                            "content": {
-                                "class": "btn_small "+type[i].class,
-                                "href": location.href.replace(type[curType].des, type[i].des),
-                                "target": "_blank"
+                            node: "a",
+                            content: {
+                                class: "btn_small "+type[i].class,
+                                href: location.href.replace(type[curType].des, type[i].des),
+                                target: "_blank"
                             },
-                            "html": "<span>"+type[i].name+"</span>"
+                            html: "<span>"+type[i].name+"</span>"
                         });
                         oriButton.append(newBtn);
                     }
                 }
             }
+        }
+        csgomt.prototype.addVolume = function () {
+            let oriLink = location.href.split('/');
+            oriLink = oriLink[oriLink.length-1];
+            util.xhr({
+                url: `https://steamcommunity.com/market/priceoverview/?appid=730&market_hash_name=${oriLink}`,
+                type: 'json'
+            }).then(function (result) {
+                var volume = '';
+                if (result.body.success) {
+                    volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${parseInt(result.body.volume.replace(/\, ?/gi, ''))}</span> 个`;
+                }
+                let oriDesc = document.getElementById('largeiteminfo_item_descriptors');
+                let newDesc = util.createElement({node: "div", content: {class: "descriptor"}, html: volume});
+                oriDesc.appendChild(newDesc);
+            });
         }
         csgomt.prototype.load = function () {
             var _this = this;
@@ -232,6 +248,7 @@
             this.addBanner();
             this.addStyle();
             this.addType();
+            this.addVolume();
             let itemDetails = unsafeWindow.g_rgAssets[730][2];
             let itemListInfo = unsafeWindow.g_rgListingInfo;
             let itemInfo = {};
