@@ -12,10 +12,11 @@
 
 (function() {
     let oriLink = location.href.split('/');
+    let appid = oriLink[oriLink.length-2];
     oriLink = oriLink[oriLink.length-1];
     GM_xmlhttpRequest({
         method: "get",
-        url: `https://steamcommunity.com/market/priceoverview/?appid=730&market_hash_name=${oriLink}`,
+        url: `https://steamcommunity.com/market/priceoverview/?appid=${appid}&market_hash_name=${oriLink}`,
         responseType: "json",
         timeout: 3e4,
         onload: function (result) {
