@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         24h Market Sells
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.01
+// @version      0.02
 // @description  Shows 24 hours sell number on market page
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/*
@@ -26,9 +26,13 @@
                 volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${parseInt(result.volume.replace(/\, ?/gi, ''))}</span> 个`;
             }
             let oriDesc = document.getElementById('largeiteminfo_item_descriptors');
+            if (oriDesc.getAttribute('style').length > 0) {
+                oriDesc.setAttribute('style', 'display: block;');
+            }
             let newDesc = document.createElement('div');
             newDesc.setAttribute('class', 'descriptor');
             newDesc.innerHTML = volume;
+            console.log(volume);
             oriDesc.appendChild(newDesc);
         }
     });
