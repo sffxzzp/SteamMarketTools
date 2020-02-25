@@ -100,8 +100,7 @@
                     let preResult = JSON.parse(localStorage.getItem(node.id));
                     preResult.screenshot = res.body.screenshotLink;
                     localStorage.setItem(node.id, JSON.stringify(preResult));
-                    node.className = "btn_green_white_innerfade btn_small";
-                    node.href = res.body.screenshotLink;
+                    util.setElement({node: node, content: {class: "btn_green_white_innerfade btn_small", href: res.body.screenshotLink}});
                 }
                 else {
                     node.className = "btn_blue_white_innerfade btn_small";
@@ -116,9 +115,7 @@
                 if (result.body.iteminfo) {
                     node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
                     let finalResult = _this.parseResult(result.body);
-                    node.target = "_blank";
-                    node.innerHTML = "<span>"+finalResult.floatvalue+"</span>";
-                    node.className = "btn_blue_white_innerfade btn_small";
+                    util.setElement({node: node, content: {class: "btn_blue_white_innerfade btn_small"}, html: "<span>"+finalResult.floatvalue+"</span>"});
                     let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
                     _this.addInfo(nameList, finalResult);
                     localStorage.setItem(node.id, JSON.stringify(finalResult));
@@ -291,7 +288,7 @@
                     _this.addInfo(nameList, savedItem);
                 }
                 else {
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" id="'+listingid+'" class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
+                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" target="_blank" id="'+listingid+'" class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
                     floatButton.onclick = function () {
                         let clickedButton = this.children[0].children[0];
                         util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
