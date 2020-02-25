@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.33
+// @version      2.34
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -73,7 +73,7 @@
             let retResult = {"floatvalue": result.iteminfo.floatvalue.toFixed(14)};
             let stickerConts = result.iteminfo.stickers;
             if (stickerConts.length > 0) {
-                let stickerText = "印花：";
+                let stickerText = "印花剩余：";
                 for (let i=0;i<stickerConts.length;i++) {
                     if (stickerConts[i].wear==null) {stickerText += "100% ";}
                     else {let tmpNum = (1-stickerConts[i].wear)*100;stickerText += tmpNum.toFixed(2)+"% ";}
@@ -96,11 +96,17 @@
             node.className = "btn_darkred_white_innerfade btn_small";
             node.parentNode.parentNode.onclick = function () {};
             util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0=')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
-                let preResult = JSON.parse(localStorage.getItem(node.id));
-                preResult.screenshot = res.body.screenshotLink;
-                localStorage.setItem(node.id, JSON.stringify(preResult));
-                node.className = "btn_green_white_innerfade btn_small";
-                node.href = res.body.screenshotLink;
+                if (res.body.hasOwnProperty('screenshotLink')) {
+                    let preResult = JSON.parse(localStorage.getItem(node.id));
+                    preResult.screenshot = res.body.screenshotLink;
+                    localStorage.setItem(node.id, JSON.stringify(preResult));
+                    node.className = "btn_green_white_innerfade btn_small";
+                    node.href = res.body.screenshotLink;
+                }
+                else {
+                    node.className = "btn_blue_white_innerfade btn_small";
+                    node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
+                }
             });
         }
         csgomt.prototype.getFloatValue = function (node) {
