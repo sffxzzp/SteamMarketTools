@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.23
+// @version      2.33
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @connect      api.csgofloat.com
+// @connect      money.csgofloat.com
 // @updateURL    https://sffxzzp.coding.net/p/SteamMarketTools/d/SteamMarketTools/git/raw/master/CSGO_Market_Tool.user.js
 // @grant        unsafeWindow
 // ==/UserScript==
@@ -22,6 +23,7 @@
                         method: xhrData.method || "get",
                         url: xhrData.url,
                         data: xhrData.data,
+                        headers: xhrData.headers || {},
                         responseType: xhrData.type || "",
                         timeout: 3e4,
                         onload: function onload(res) {
@@ -32,20 +34,12 @@
                     });
                 } else {
                     var xhr = new XMLHttpRequest();
-                    xhr.open(
-                        xhrData.method || "get",
-                        xhrData.url,
-                        true
-                    );
-                    if (xhrData.method === "POST") {
-                        xhr.setRequestHeader(
-                            "content-type",
-                            "application/x-www-form-urlencoded; charset=utf-8"
-                        );
-                    }
-                    if (xhrData.cookie) xhr.withCredentials = true;
+                    xhr.open(xhrData.method || "get", xhrData.url, true);
+                    if (xhrData.method === "post") {xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded; charset=utf-8");}
+                    if (xhrData.cookie) {xhr.withCredentials = true;}
                     xhr.responseType = xhrData.responseType || "";
                     xhr.timeout = 3e4;
+                    if (xhrData.headers) {for (var k in xhrData.headers) {xhr.setRequestHeader(k, xhrData.headers[k]);}}
                     xhr.onload = function(ev) {
                         var evt = ev.target;
                         resolve({ response: evt, body: evt.response });
@@ -60,23 +54,15 @@
             var node;
             if (data.node) {
                 node = document.createElement(data.node);
-                if (data.content) {
-                    this.setElement({node: node, content: data.content});
-                }
-                if (data.html) {
-                    node.innerHTML = data.html;
-                }
+                if (data.content) {this.setElement({node: node, content: data.content});}
+                if (data.html) {node.innerHTML = data.html;}
             }
             return node;
         };
         util.setElement = function (data) {
             if (data.node) {
-                for (let name in data.content) {
-                    data.node.setAttribute(name, data.content[name]);
-                }
-                if (data.html!=undefined) {
-                    data.node.innerHTML = data.html;
-                }
+                for (let name in data.content) {data.node.setAttribute(name, data.content[name]);}
+                if (data.html!=undefined) {data.node.innerHTML = data.html;}
             }
         };
         return util;
@@ -84,7 +70,6 @@
     var csgomt = (function () {
         function csgomt() {}
         csgomt.prototype.parseResult = function (result) {
-            console.log(result);
             let retResult = {"floatvalue": result.iteminfo.floatvalue.toFixed(14)};
             let stickerConts = result.iteminfo.stickers;
             if (stickerConts.length > 0) {
@@ -101,31 +86,35 @@
                 dopplerText += result.iteminfo.imageurl.match(dopplerRe)[0];
                 retResult.dopplerText = dopplerText;
             }
-            console.log(retResult);
+            if (result.iteminfo.hasOwnProperty('paintseed')) {
+                retResult.seedText = "图案模板："+result.iteminfo.paintseed;
+            }
             return retResult;
+        }
+        csgomt.prototype.getScreenShot = function (node) {
+            var _this = this;
+            node.className = "btn_darkred_white_innerfade btn_small";
+            node.parentNode.parentNode.onclick = function () {};
+            util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0=')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
+                let preResult = JSON.parse(localStorage.getItem(node.id));
+                preResult.screenshot = res.body.screenshotLink;
+                localStorage.setItem(node.id, JSON.stringify(preResult));
+                node.className = "btn_green_white_innerfade btn_small";
+                node.href = res.body.screenshotLink;
+            });
         }
         csgomt.prototype.getFloatValue = function (node) {
             var _this = this;
-            util.xhr({
-                url: "https://api.csgofloat.com/?url="+node.getAttribute("link")
-            }).then(function (result) {
-                result = JSON.parse(result.body);
-                if (result.iteminfo) {
-                    node.parentNode.parentNode.onclick = function () {};
-                    let finalResult = _this.parseResult(result);
+            node.parentNode.parentNode.onclick = function () {};
+            util.xhr({url: "https://api.csgofloat.com/?url="+node.getAttribute("link"), type: 'json'}).then(function (result) {
+                if (result.body.iteminfo) {
+                    node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
+                    let finalResult = _this.parseResult(result.body);
                     node.target = "_blank";
-                    node.href = "https://csgo.gallery/"+node.getAttribute("link");
                     node.innerHTML = "<span>"+finalResult.floatvalue+"</span>";
-                    node.className="btn_green_white_innerfade btn_small";
+                    node.className = "btn_blue_white_innerfade btn_small";
                     let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
-                    if (finalResult.hasOwnProperty('stickerText')) {
-                        let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: finalResult.stickerText});
-                        nameList.appendChild(stickerWear);
-                    }
-                    if (finalResult.hasOwnProperty('dopplerText')) {
-                        let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: finalResult.dopplerText});
-                        nameList.appendChild(dopplerPhase);
-                    }
+                    _this.addInfo(nameList, finalResult);
                     localStorage.setItem(node.id, JSON.stringify(finalResult));
                 }
                 else {
@@ -133,6 +122,20 @@
                 }
             });
         };
+        csgomt.prototype.addInfo = function (nameList, result) {
+            if (result.hasOwnProperty('seedText')) {
+                let paintSeed = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.seedText});
+                nameList.appendChild(paintSeed);
+            }
+            if (result.hasOwnProperty('stickerText')) {
+                let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.stickerText});
+                nameList.appendChild(stickerWear);
+            }
+            if (result.hasOwnProperty('dopplerText')) {
+                let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.dopplerText});
+                nameList.appendChild(dopplerPhase);
+            }
+        }
         csgomt.prototype.addButton = function () {
             let oriButtonDiv = document.getElementById('market_buyorder_info').children[0];
             let oriButton = document.getElementById('market_commodity_buyrequests');
@@ -155,7 +158,7 @@
             listBanner.insertBefore(childBanner, nameBanner);
         };
         csgomt.prototype.addStyle = function () {
-            let customstyle = util.createElement({node: "style", html: ".csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}"});
+            let customstyle = util.createElement({node: "style", html: ".market_listing_item_name_block {margin-top: 0px !important;}.csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}"});
             document.head.appendChild(customstyle);
         };
         csgomt.prototype.addPageCtl = function () {
@@ -199,26 +202,13 @@
             let oriLink = location.href.split('/');
             oriLink = oriLink[oriLink.length-1];
             let curType = null;
-            for (let i in type) {
-                if (RegExp(type[i].des).test(oriLink)) {
-                    curType = i;
-                    break;
-                }
-            }
+            for (let i in type) {if (RegExp(type[i].des).test(oriLink)) {curType = i; break;}}
             let oriButton = document.getElementById('largeiteminfo_item_actions');
             if (curType != null) {
                 oriButton.append(document.createElement('br'));
                 for (let i in type) {
                     if (i != curType) {
-                        let newBtn = util.createElement({
-                            node: "a",
-                            content: {
-                                class: "btn_small "+type[i].class,
-                                href: location.href.replace(type[curType].des, type[i].des),
-                                target: "_blank"
-                            },
-                            html: "<span>"+type[i].name+"</span>"
-                        });
+                        let newBtn = util.createElement({node: "a", content: {class: "btn_small "+type[i].class, href: location.href.replace(type[curType].des, type[i].des), target: "_blank"}, html: "<span>"+type[i].name+"</span>"});
                         oriButton.append(newBtn);
                     }
                 }
@@ -227,14 +217,9 @@
         csgomt.prototype.addVolume = function () {
             let oriLink = location.href.split('/');
             oriLink = oriLink[oriLink.length-1];
-            util.xhr({
-                url: `https://steamcommunity.com/market/priceoverview/?appid=730&market_hash_name=${oriLink}`,
-                type: 'json'
-            }).then(function (result) {
+            util.xhr({url: `https://steamcommunity.com/market/priceoverview/?appid=730&market_hash_name=${oriLink}`, type: 'json'}).then(function (result) {
                 var volume = '';
-                if (result.body.success) {
-                    volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${parseInt(result.body.volume.replace(/\, ?/gi, ''))}</span> 个`;
-                }
+                if (result.body.success) {volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${parseInt(result.body.volume.replace(/\, ?/gi, ''))}</span> 个`;}
                 let oriDesc = document.getElementById('largeiteminfo_item_descriptors');
                 let newDesc = util.createElement({node: "div", content: {class: "descriptor"}, html: volume});
                 oriDesc.appendChild(newDesc);
@@ -290,15 +275,14 @@
                 let savedItem = localStorage.getItem(listingid);
                 if (savedItem) {
                     savedItem = JSON.parse(savedItem);
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a target="_blank" href="https://csgo.gallery/'+itemInfo[assetid].link+'" id="'+listingid+'" class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
-                    if (savedItem.hasOwnProperty('stickerText')) {
-                        let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: savedItem.stickerText});
-                        nameList.appendChild(stickerWear);
+                    if (savedItem.hasOwnProperty('screenshot')) {
+                        floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a target="_blank" href="'+savedItem.screenshot+'" id="'+listingid+'" class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
                     }
-                    if (savedItem.hasOwnProperty('dopplerText')) {
-                        let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: savedItem.dopplerText});
-                        nameList.appendChild(dopplerPhase);
+                    else {
+                        floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" target="_blank" id="'+listingid+'" class="btn_blue_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
+                        floatButton.onclick = function () {_this.getScreenShot(this.children[0].children[0]);};
                     }
+                    _this.addInfo(nameList, savedItem);
                 }
                 else {
                     floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" id="'+listingid+'" class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
