@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.35
+// @version      2.36
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -38,7 +38,7 @@
                     xhr.open(xhrData.method || "get", xhrData.url, true);
                     if (xhrData.method === "post") {xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded; charset=utf-8");}
                     if (xhrData.cookie) {xhr.withCredentials = true;}
-                    xhr.responseType = xhrData.responseType || "";
+                    xhr.responseType = xhrData.type || "";
                     xhr.timeout = 3e4;
                     if (xhrData.headers) {for (var k in xhrData.headers) {xhr.setRequestHeader(k, xhrData.headers[k]);}}
                     xhr.onload = function(ev) {
@@ -237,8 +237,6 @@
             if (isHandled > 3) {return false;}
             this.addBanner();
             this.addStyle();
-            this.addType();
-            this.addVolume();
             let itemDetails = unsafeWindow.g_rgAssets[730][2];
             let itemListInfo = unsafeWindow.g_rgListingInfo;
             let itemInfo = {};
@@ -305,6 +303,8 @@
             this.load();
             this.addButton();
             this.addPageCtl();
+            this.addType();
+            this.addVolume();
             var csgoinv = document.getElementById("searchResultsRows");
             var observer = new MutationObserver(function (recs) {
                 for (let i=0;i<recs.length;i++) {
