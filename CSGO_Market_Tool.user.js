@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         CSGO Market Tool
-// @namespace    https://coding.net/u/sffxzzp
-// @version      2.36
+// @name         CSGO Market Tool1
+// @namespace    https://github.com/sffxzzp
+// @version      2.37
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -26,7 +26,7 @@
                         data: xhrData.data,
                         headers: xhrData.headers || {},
                         responseType: xhrData.type || "",
-                        timeout: 3e4,
+                        timeout: 3e5,
                         onload: function onload(res) {
                             return resolve({ response: res, body: res.response });
                         },
@@ -39,7 +39,7 @@
                     if (xhrData.method === "post") {xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded; charset=utf-8");}
                     if (xhrData.cookie) {xhr.withCredentials = true;}
                     xhr.responseType = xhrData.type || "";
-                    xhr.timeout = 3e4;
+                    xhr.timeout = 3e5;
                     if (xhrData.headers) {for (var k in xhrData.headers) {xhr.setRequestHeader(k, xhrData.headers[k]);}}
                     xhr.onload = function(ev) {
                         var evt = ev.target;
@@ -70,77 +70,6 @@
     })();
     var csgomt = (function () {
         function csgomt() {}
-        csgomt.prototype.parseResult = function (result) {
-            let retResult = {"floatvalue": result.iteminfo.floatvalue.toFixed(14)};
-            let stickerConts = result.iteminfo.stickers;
-            if (stickerConts.length > 0) {
-                let stickerText = "印花剩余：";
-                for (let i=0;i<stickerConts.length;i++) {
-                    if (stickerConts[i].wear==null) {stickerText += "100% ";}
-                    else {let tmpNum = (1-stickerConts[i].wear)*100;stickerText += tmpNum.toFixed(2)+"% ";}
-                }
-                retResult.stickerText = stickerText;
-            }
-            if (result.iteminfo.imageurl.indexOf('phase')>=0) {
-                let dopplerText = "多普勒：";
-                let dopplerRe = /phase\d/gi;
-                dopplerText += result.iteminfo.imageurl.match(dopplerRe)[0];
-                retResult.dopplerText = dopplerText;
-            }
-            if (result.iteminfo.hasOwnProperty('paintseed')) {
-                retResult.seedText = "图案模板："+result.iteminfo.paintseed;
-            }
-            return retResult;
-        }
-        csgomt.prototype.getScreenShot = function (node) {
-            var _this = this;
-            node.className = "btn_darkred_white_innerfade btn_small";
-            node.parentNode.parentNode.onclick = function () {};
-            util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0=')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
-                if (res.body.hasOwnProperty('screenshotLink')) {
-                    let preResult = JSON.parse(localStorage.getItem(node.id));
-                    preResult.screenshot = res.body.screenshotLink;
-                    localStorage.setItem(node.id, JSON.stringify(preResult));
-                    util.setElement({node: node, content: {class: "btn_green_white_innerfade btn_small", href: res.body.screenshotLink}});
-                    GM_openInTab(res.body.screenshotLink, false);
-                }
-                else {
-                    node.className = "btn_blue_white_innerfade btn_small";
-                    node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
-                }
-            });
-        }
-        csgomt.prototype.getFloatValue = function (node) {
-            var _this = this;
-            node.parentNode.parentNode.onclick = function () {};
-            util.xhr({url: "https://api.csgofloat.com/?url="+node.getAttribute("link"), type: 'json'}).then(function (result) {
-                if (result.body.iteminfo) {
-                    node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
-                    let finalResult = _this.parseResult(result.body);
-                    util.setElement({node: node, content: {class: "btn_blue_white_innerfade btn_small"}, html: "<span>"+finalResult.floatvalue+"</span>"});
-                    let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
-                    _this.addInfo(nameList, finalResult);
-                    localStorage.setItem(node.id, JSON.stringify(finalResult));
-                }
-                else {
-                    node.innerHTML = "<span>查询失败</span>";
-                }
-            });
-        };
-        csgomt.prototype.addInfo = function (nameList, result) {
-            if (result.hasOwnProperty('seedText')) {
-                let paintSeed = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.seedText});
-                nameList.appendChild(paintSeed);
-            }
-            if (result.hasOwnProperty('stickerText')) {
-                let stickerWear = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.stickerText});
-                nameList.appendChild(stickerWear);
-            }
-            if (result.hasOwnProperty('dopplerText')) {
-                let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.dopplerText});
-                nameList.appendChild(dopplerPhase);
-            }
-        }
         csgomt.prototype.addButton = function () {
             let oriButtonDiv = document.getElementById('market_buyorder_info').children[0];
             let oriButton = document.getElementById('market_commodity_buyrequests');
@@ -158,8 +87,6 @@
             let childBanner = util.createElement({node: "span", content:{style: "padding-left: 4vw;"}});
             nameBanner.appendChild(childBanner);
             childBanner = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker"}, html: "印花"});
-            listBanner.insertBefore(childBanner, nameBanner);
-            childBanner = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: "磨损值"});
             listBanner.insertBefore(childBanner, nameBanner);
         };
         csgomt.prototype.addStyle = function () {
@@ -275,27 +202,6 @@
                 util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: itemInfo[assetid].nametag});
                 let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
                 itemList[i].insertBefore(itemSticker, nameList);
-                let savedItem = localStorage.getItem(listingid);
-                if (savedItem) {
-                    savedItem = JSON.parse(savedItem);
-                    if (savedItem.hasOwnProperty('screenshot')) {
-                        floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a target="_blank" href="'+savedItem.screenshot+'" id="'+listingid+'" class="btn_green_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
-                    }
-                    else {
-                        floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" target="_blank" id="'+listingid+'" class="btn_blue_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
-                        floatButton.onclick = function () {_this.getScreenShot(this.children[0].children[0]);};
-                    }
-                    _this.addInfo(nameList, savedItem);
-                }
-                else {
-                    floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" target="_blank" id="'+listingid+'" class="floatvalue_button btn_darkblue_white_innerfade btn_small"><span>点击查询磨损</span></a></div>'});
-                    floatButton.onclick = function () {
-                        let clickedButton = this.children[0].children[0];
-                        util.setElement({node: clickedButton, html: "<span>磨损查询中…</span>"});
-                        _this.getFloatValue(clickedButton);
-                    };
-                }
-                itemList[i].insertBefore(floatButton, nameList);
             }
         };
         csgomt.prototype.run = function () {
