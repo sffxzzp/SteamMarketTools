@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         24h Market Sells
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.03
+// @version      0.04
 // @description  Shows 24 hours sell number on market page
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/*
@@ -12,7 +12,7 @@
 
 (function() {
     let oriLink = location.href.split('/');
-    let appid = oriLink[oriLink.length-2];
+    let appid = parseInt(oriLink[oriLink.length-2]);
     oriLink = oriLink[oriLink.length-1];
     GM_xmlhttpRequest({
         method: "get",
