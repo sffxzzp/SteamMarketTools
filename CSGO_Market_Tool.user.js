@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.40
+// @version      2.41
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @include      /https?:\/\/steamcommunity\.com\/market\/listings\/730(%.{2})?\/*/
@@ -70,6 +70,32 @@
     })();
     var csgomt = (function () {
         function csgomt() {}
+        csgomt.prototype.lsName = 'csgomt_data';
+        csgomt.prototype.getItem = function (listingid) {
+            let itemData = localStorage.getItem(this.lsName);
+            let retData = null;
+            if (itemData) {
+                retData = JSON.parse(itemData)[listingid] || null;
+            }
+            else {
+                this.initItem();
+            }
+            return retData;
+        }
+        csgomt.prototype.setItem = function (listingid, indata) {
+            let itemData = localStorage.getItem(this.lsName);
+            if (itemData) {
+                itemData = JSON.parse(itemData);
+                itemData[listingid] = indata;
+                localStorage.setItem(this.lsName, JSON.stringify(itemData));
+            }
+            else {
+                this.initItem();
+            }
+        }
+        csgomt.prototype.initItem = function () {
+            localStorage.setItem(this.lsName, '{}');
+        }
         csgomt.prototype.parseResult = function (result) {
             let retResult = {"floatvalue": result.iteminfo.floatvalue.toFixed(14)};
             let stickerConts = result.iteminfo.stickers;
@@ -97,11 +123,10 @@
             node.className = "btn_darkred_white_innerfade btn_small";
             node.parentNode.parentNode.onclick = function () {};
             util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
-                console.log(res.body);
                 if (res.body.hasOwnProperty('screenshotLink')) {
-                    let preResult = JSON.parse(localStorage.getItem(node.id));
+                    let preResult = JSON.parse(this.getItem(node.id));
                     preResult.screenshot = res.body.screenshotLink;
-                    localStorage.setItem(node.id, JSON.stringify(preResult));
+                    _this.setItem(node.id, JSON.stringify(preResult));
                     util.setElement({node: node, content: {class: "btn_green_white_innerfade btn_small", href: res.body.screenshotLink}});
                     GM_openInTab(res.body.screenshotLink, false);
                 }
@@ -121,7 +146,7 @@
                     util.setElement({node: node, content: {class: "btn_blue_white_innerfade btn_small"}, html: "<span>"+finalResult.floatvalue+"</span>"});
                     let nameList = node.parentNode.parentNode.parentNode.getElementsByClassName('market_listing_item_name_block')[0];
                     _this.addInfo(nameList, finalResult);
-                    localStorage.setItem(node.id, JSON.stringify(finalResult));
+                    _this.setItem(node.id, JSON.stringify(finalResult));
                 }
                 else {
                     node.innerHTML = "<span>查询失败</span>";
@@ -143,11 +168,12 @@
             }
         }
         csgomt.prototype.addButton = function () {
+            var _this = this;
             let oriButtonDiv = document.getElementById('market_buyorder_info').children[0];
             let oriButton = document.getElementById('market_commodity_buyrequests');
             let newButton = util.createElement({node: "div", content: {style: "float: right; padding-right: 10px;"}, html: "<a class=\"btn_blue_white_innerfade btn_medium market_noncommodity_buyorder_button\" href=\"javascript:void(0)\"><span>清除本地缓存</span></a>"});
             newButton.onclick = function () {
-                localStorage.clear();
+                _this.initItem();
                 alert("清理完毕！");
             };
             oriButtonDiv.insertBefore(newButton, oriButton);
@@ -276,7 +302,7 @@
                 util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: itemInfo[assetid].nametag});
                 let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
                 itemList[i].insertBefore(itemSticker, nameList);
-                let savedItem = localStorage.getItem(listingid);
+                let savedItem = this.getItem(listingid);
                 if (savedItem) {
                     savedItem = JSON.parse(savedItem);
                     if (savedItem.hasOwnProperty('screenshot')) {
