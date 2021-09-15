@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      2.41
+// @version      2.42
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @include      /https?:\/\/steamcommunity\.com\/market\/listings\/730(%.{2})?\/*/
@@ -124,7 +124,7 @@
             node.parentNode.parentNode.onclick = function () {};
             util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
                 if (res.body.hasOwnProperty('screenshotLink')) {
-                    let preResult = JSON.parse(this.getItem(node.id));
+                    let preResult = JSON.parse(_this.getItem(node.id));
                     preResult.screenshot = res.body.screenshotLink;
                     _this.setItem(node.id, JSON.stringify(preResult));
                     util.setElement({node: node, content: {class: "btn_green_white_innerfade btn_small", href: res.body.screenshotLink}});
