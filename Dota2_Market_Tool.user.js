@@ -6,7 +6,7 @@
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/570/*
 // @icon         https://store.steampowered.com/favicon.ico
-// @updateURL    https://sffxzzp.coding.net/p/SteamMarketTools/d/SteamMarketTools/git/raw/master/Dota2_Market_Tool.user.js
+// @updateURL    https://github.com/sffxzzp/SteamMarketTools/raw/main/Dota2_Market_Tool.user.js
 // ==/UserScript==
 
 (function() {

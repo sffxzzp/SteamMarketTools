@@ -1,12 +1,3 @@
-#CSGO-Market-Tool
+Steam-Market-Tools
 ======
-
-部分样式来自于csgola。
-
-代码部分全部自己编写。
-
-目前可以直观的看到名称标签，磨损值，以及印花。
-
-多次点击翻页造成的载入bug已经修复。
-
-翻页后前一次未结束查询会更改按钮内容的bug已修复。
+Nothing here.

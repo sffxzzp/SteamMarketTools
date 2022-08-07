@@ -10,7 +10,7 @@
 // @grant        GM_openInTab
 // @connect      api.csgofloat.com
 // @connect      money.csgofloat.com
-// @updateURL    https://sffxzzp.coding.net/p/SteamMarketTools/d/SteamMarketTools/git/raw/master/CSGO_Market_Tool.user.js
+// @updateURL    https://github.com/sffxzzp/SteamMarketTools/raw/main/CSGO_Market_Tool.user.js
 // @grant        unsafeWindow
 // ==/UserScript==
 
