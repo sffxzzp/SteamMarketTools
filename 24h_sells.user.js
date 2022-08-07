@@ -7,7 +7,7 @@
 // @match        *://steamcommunity.com/market/listings/*
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
-// @updateURL    https://sffxzzp.coding.net/p/SteamMarketTools/d/SteamMarketTools/git/raw/master/24h_sells.user.js
+// @updateURL    https://github.com/sffxzzp/SteamMarketTools/raw/main/24h_sells.user.js
 // ==/UserScript==
 
 (function() {
