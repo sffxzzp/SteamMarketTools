@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Inventory Float Value
 // @namespace    https://coding.net/u/sffxzzp
-// @version      0.10
+// @version      0.11
 // @description  A script that displays float value & screenshot of csgo skins
 // @author       sffxzzp
 // @match        *://steamcommunity.com/*/inventory*
@@ -87,9 +87,7 @@
         }
         ifv.prototype.getFloatValue = function (node) {
             let _this = this;
-            util.xhr({
-                url: "https://api.csgofloat.com/?url="+node.getAttribute("link")
-            }).then(function (result) {
+            util.xhr({url: atob('aHR0cHM6Ly9hcGkuY3Nnb2Zsb2F0LmNvbS8/dXJsPQ==')+node.getAttribute("link")+atob('Jm1pbmltYWw9dHJ1ZQ=='), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}}).then(function (result) {
                 result = JSON.parse(result.body);
                 if (result.iteminfo) {
                     node.onclick = function () {_this.getScreenShot(node);};
