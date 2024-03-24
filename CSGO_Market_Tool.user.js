@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://github.com/sffxzzp
-// @version      2.43
+// @version      2.50
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @include      /https?:\/\/steamcommunity\.com\/market\/listings\/730(%.{2})?\/*/
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @grant        GM_openInTab
-// @connect      api.csgofloat.com
-// @connect      money.csgofloat.com
+// @connect      api.csfloat.com
+// @connect      money.csfloat.com
 // @updateURL    https://github.com/sffxzzp/SteamMarketTools/raw/main/CSGO_Market_Tool.user.js
 // @downloadURL  https://github.com/sffxzzp/SteamMarketTools/raw/main/CSGO_Market_Tool.user.js
 // @grant        unsafeWindow
@@ -123,7 +123,8 @@
             var _this = this;
             node.className = "btn_darkred_white_innerfade btn_small";
             node.parentNode.parentNode.onclick = function () {};
-            util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2dvZmxvYXQuY29tL21vZGVsP3VybD0')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
+            util.xhr({url: atob('aHR0cHM6Ly9tb25leS5jc2Zsb2F0LmNvbS9tb2RlbD91cmw9')+node.getAttribute('link'), headers: {'Origin': atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (res) {
+                console.log(res);
                 if (res.body.hasOwnProperty('screenshotLink')) {
                     let preResult = JSON.parse(_this.getItem(node.id));
                     preResult.screenshot = res.body.screenshotLink;
@@ -140,7 +141,7 @@
         csgomt.prototype.getFloatValue = function (node) {
             var _this = this;
             node.parentNode.parentNode.onclick = function () {};
-            util.xhr({url: atob('aHR0cHM6Ly9hcGkuY3Nnb2Zsb2F0LmNvbS8/dXJsPQ')+node.getAttribute("link")+atob('Jm1pbmltYWw9dHJ1ZQ'), headers: {Origin: atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (result) {
+            util.xhr({url: atob('aHR0cHM6Ly9hcGkuY3NmbG9hdC5jb20vP3VybD0')+node.getAttribute("link")+atob('Jm1pbmltYWw9dHJ1ZQ'), headers: {Origin: atob('Y2hyb21lLWV4dGVuc2lvbjovL2pqaWNiZWZwZW1ucGhpbmNjZ2lrcGRhYWdqZWJibmhn')}, type: 'json'}).then(function (result) {
                 if (result.body.iteminfo) {
                     node.parentNode.parentNode.onclick = function () {_this.getScreenShot(node);};
                     let finalResult = _this.parseResult(result.body);
@@ -182,7 +183,7 @@
         csgomt.prototype.addBanner = function () {
             let listBanner = document.getElementsByClassName('market_listing_table_header');
             listBanner = listBanner[listBanner.length-1];
-            let nameBanner = listBanner.children[2];
+            let nameBanner = listBanner.children[1];
             let childBanner = util.createElement({node: "span", content:{style: "padding-left: 4vw;"}});
             nameBanner.appendChild(childBanner);
             childBanner = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker"}, html: "印花"});
@@ -191,7 +192,7 @@
             listBanner.insertBefore(childBanner, nameBanner);
         };
         csgomt.prototype.addStyle = function () {
-            let customstyle = util.createElement({node: "style", html: ".market_listing_item_name_block {margin-top: 0px !important;}.csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}"});
+            let customstyle = util.createElement({node: "style", html: ".market_listing_item_name_block {margin-top: 0px !important; float: left;}.csgo-stickers-show img:hover{opacity:1;width:96px;margin:-16px -24px -24px -24px;z-index:4;-moz-transition:.2s;-o-transition:.2s;-webkit-transition:.2s;transition:.2s;} .csgo-sticker{width: 48px;opacity: 1;vertical-align: middle;z-index: 3;-moz-transition: .1s; -o-transition: .1s; -webkit-transition: .1s; transition: .1s;}"});
             document.head.appendChild(customstyle);
         };
         csgomt.prototype.addPageCtl = function () {
@@ -252,7 +253,7 @@
             oriLink = oriLink[oriLink.length-1];
             util.xhr({url: `https://steamcommunity.com/market/priceoverview/?appid=730&market_hash_name=${oriLink}`, type: 'json'}).then(function (result) {
                 var volume = '';
-                if (result.body.success) {volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${parseInt(result.body.volume.replace(/\, ?/gi, ''))}</span> 个`;}
+                if (result.body.success) {volume = `在 <span class="market_commodity_orders_header_promote">24</span> 小时内卖出了 <span class="market_commodity_orders_header_promote">${result.body.hasOwnProperty('volume') ? parseInt(result.body.volume.replace(/\, ?/gi, '')) : 0}</span> 个`;}
                 let oriDesc = document.getElementById('largeiteminfo_item_descriptors');
                 let newDesc = util.createElement({node: "div", content: {class: "descriptor"}, html: volume});
                 oriDesc.appendChild(newDesc);
@@ -298,7 +299,7 @@
                 let listingid = itemList[i].id.substring(8);
                 let assetid = itemListInfo[listingid].asset.id;
                 let floatButton;
-                let nameList = itemList[i].children[3];
+                let nameList = itemList[i].querySelector('.market_listing_item_name_block');
                 let namePlace = nameList.children[2];
                 util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: itemInfo[assetid].nametag});
                 let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
