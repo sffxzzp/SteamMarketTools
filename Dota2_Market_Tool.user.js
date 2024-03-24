@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Dota2 Market Tool
 // @namespace    https://coding.net/u/sffxzzp
-// @version      1.06
+// @version      1.10
 // @description  A script that improves display in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/570/*
 // @icon         https://store.steampowered.com/favicon.ico
 // @updateURL    https://github.com/sffxzzp/SteamMarketTools/raw/main/Dota2_Market_Tool.user.js
+// @downloadURL  https://github.com/sffxzzp/SteamMarketTools/raw/main/Dota2_Market_Tool.user.js
 // ==/UserScript==
 
 (function() {
@@ -41,7 +42,7 @@
         function dotamt() {}
         dotamt.prototype.addBanner = function () {
             var listBanner = document.getElementsByClassName('market_listing_table_header')[0];
-            var nameBanner = listBanner.children[2];
+            var nameBanner = listBanner.children[1];
             var childBanner = util.createElement({node: "span", content: {style: "padding-left: 4vw;"}});
             nameBanner.appendChild(childBanner);
             childBanner = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell"}, html: "宝石"});
@@ -78,10 +79,15 @@
             newPageSizeCtl.appendChild(newPageSizeGo);
             document.getElementById('searchResults_ctn').appendChild(newPageSizeCtl);
         }
+        dotamt.prototype.addStyle = function () {
+            let customstyle = util.createElement({node: "style", html: ".market_listing_item_name_block {float: left;}"});
+            document.head.appendChild(customstyle);
+        };
         dotamt.prototype.load = function () {
             var _this=this;
             let isHandled = document.getElementsByClassName("market_listing_table_header")[0].children.length;
             if (isHandled > 3) {return false;}
+            _this.addStyle();
             _this.addBanner();
             let itemDetails = g_rgAssets[570][2];
             let itemListInfo = g_rgListingInfo;
