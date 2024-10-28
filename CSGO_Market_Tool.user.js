@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://github.com/sffxzzp
-// @version      2.52
+// @version      2.53
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -108,7 +108,7 @@
                 }
                 retResult.stickerText = stickerText;
             }
-            if (result.iteminfo.imageurl && result.iteminfo.imageurl.indexOf('phase')>=0) {
+            if (result.iteminfo.hasOwnProperty('imageurl') && result.iteminfo.imageurl.indexOf('phase')>=0) {
                 let dopplerText = "多普勒：";
                 let dopplerRe = /phase\d/gi;
                 dopplerText += result.iteminfo.imageurl.match(dopplerRe)[0];
@@ -116,6 +116,15 @@
             }
             if (result.iteminfo.hasOwnProperty('paintseed')) {
                 retResult.seedText = "图案模板："+result.iteminfo.paintseed;
+            }
+            if (result.iteminfo.hasOwnProperty('keychains')) {
+                let kcPatterns = [];
+                let kcStickers = [];
+                result.iteminfo.keychains.forEach(function (kc) {
+                    kcPatterns.push(kc.pattern);
+                    kcStickers.push(kc.stickerId);
+                });
+                retResult.kcText = `挂件纹路：${kcPatterns.join(' ')}&nbsp;&nbsp;&nbsp;&nbsp;挂件印花 ID：${kcStickers.join(' ')}`;
             }
             return retResult;
         }
@@ -167,6 +176,10 @@
             if (result.hasOwnProperty('dopplerText')) {
                 let dopplerPhase = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.dopplerText});
                 nameList.appendChild(dopplerPhase);
+            }
+            if (result.hasOwnProperty('kcText')) {
+                let keychains = util.createElement({node: "span", content: {class: "market_listing_game_name", style: "display: block; color: silver;"}, html: result.kcText});
+                nameList.appendChild(keychains);
             }
         }
         csgomt.prototype.addButton = function () {
