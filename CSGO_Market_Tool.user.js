@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://github.com/sffxzzp
-// @version      2.50
+// @version      2.52
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
-// @include      /https?:\/\/steamcommunity\.com\/market\/listings\/730(%.{2})?\/*/
+// @match        *://steamcommunity.com/market/listings/730/*
 // @icon         https://store.steampowered.com/favicon.ico
 // @grant        GM_xmlhttpRequest
 // @grant        GM_openInTab
@@ -108,7 +108,7 @@
                 }
                 retResult.stickerText = stickerText;
             }
-            if (result.iteminfo.imageurl.indexOf('phase')>=0) {
+            if (result.iteminfo.imageurl && result.iteminfo.imageurl.indexOf('phase')>=0) {
                 let dopplerText = "多普勒：";
                 let dopplerRe = /phase\d/gi;
                 dopplerText += result.iteminfo.imageurl.match(dopplerRe)[0];
@@ -312,7 +312,7 @@
                     }
                     else {
                         floatButton = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: '<div class="market_listing_right_cell market_listing_action_buttons" style="float:left;"><a link="'+itemInfo[assetid].link+'" target="_blank" id="'+listingid+'" class="btn_blue_white_innerfade btn_small"><span>'+savedItem.floatvalue+'</span></a></div>'});
-                        floatButton.onclick = function () {_this.getScreenShot(this.children[0].children[0]);};
+                        // floatButton.onclick = function () {_this.getScreenShot(this.children[0].children[0]);};
                     }
                     _this.addInfo(nameList, savedItem);
                 }
@@ -325,6 +325,7 @@
                     };
                 }
                 itemList[i].insertBefore(floatButton, nameList);
+                floatButton.click();
             }
         };
         csgomt.prototype.run = function () {
