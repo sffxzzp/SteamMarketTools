@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSGO Market Tool
 // @namespace    https://github.com/sffxzzp
-// @version      2.53
+// @version      2.60
 // @description  A script that displays float value and stickers of guns in market list.
 // @author       sffxzzp
 // @match        *://steamcommunity.com/market/listings/730/*
@@ -124,7 +124,7 @@
                     kcPatterns.push(kc.pattern);
                     kcStickers.push(kc.stickerId);
                 });
-                retResult.kcText = `挂件纹路：${kcPatterns.join(' ')}&nbsp;&nbsp;&nbsp;&nbsp;挂件印花 ID：${kcStickers.join(' ')}`;
+                retResult.kcText = `挂件模板：${kcPatterns.join(' ')}&nbsp;&nbsp;&nbsp;&nbsp;挂件系列：${kcStickers.join(' ')}`;
             }
             return retResult;
         }
@@ -199,7 +199,7 @@
             let nameBanner = listBanner.children[1];
             let childBanner = util.createElement({node: "span", content:{style: "padding-left: 4vw;"}});
             nameBanner.appendChild(childBanner);
-            childBanner = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker"}, html: "印花"});
+            childBanner = util.createElement({node: "span", content: {style: "width: 25%;", class: "market_listing_right_cell market_listing_stickers_buttons market_listing_sticker"}, html: "印花"});
             listBanner.insertBefore(childBanner, nameBanner);
             childBanner = util.createElement({node: "span", content: {style: "width: 15%;", class: "market_listing_right_cell market_listing_action_buttons market_listing_wear"}, html: "磨损值"});
             listBanner.insertBefore(childBanner, nameBanner);
@@ -309,13 +309,18 @@
                 if (itemList[i].id.substring(0,7) != 'listing') {
                     continue;
                 }
+                let inspectBtn = itemList[i].querySelector('div.market_listing_right_cell:has(div.market_listing_row_action)');
+                let inspectLink = inspectBtn.querySelector('a').href;
+                inspectBtn.parentNode.removeChild(inspectBtn);
                 let listingid = itemList[i].id.substring(8);
                 let assetid = itemListInfo[listingid].asset.id;
                 let floatButton;
                 let nameList = itemList[i].querySelector('.market_listing_item_name_block');
+                let name = nameList.querySelector('span.market_listing_item_name');
+                name.innerHTML += ` <a href="${inspectLink}" style="text-decoration: underline;">检视</a>`;
                 let namePlace = nameList.children[2];
                 util.setElement({node: namePlace, content: {style: "color: yellow;"}, html: itemInfo[assetid].nametag});
-                let itemSticker = util.createElement({node: "span", content: {style: "width: 20%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
+                let itemSticker = util.createElement({node: "span", content: {style: "width: 25%;", class: "market_listing_right_cell market_listing_sticker"}, html: itemInfo[assetid].sticker});
                 itemList[i].insertBefore(itemSticker, nameList);
                 let savedItem = this.getItem(listingid);
                 if (savedItem) {
@@ -352,7 +357,7 @@
             var observer = new MutationObserver(function (recs) {
                 for (let i=0;i<recs.length;i++) {
                     let rec = recs[i];
-                    if (rec.target.classList.contains('market_listing_item_img_container')) {
+                    if (rec.target.id == "searchResultsRows") {
                         _this.load();
                         break;
                     }
